@@ -1,18 +1,18 @@
 # ShopRegistration
 Registering shops using spring-boot microservice
 
-					README
-
 Project Details:
 Project Type: Maven project
 Pre-requisites: apache-maven-3.3.3 or higher , Java8, POSTMAN
+
 Steps to build the project :
 1.	Download the zip or clone the repository
 2.	Run > “mvn clean install”  using a cmd prompt in the root folder of the project
+
 Run the Project from the cmd prompt
 1.	mvn spring-boot:run
+
 Use POSTMAN or HTTP Tool for the following steps
-Project:  Shop Registration
 Server-Port : 64002
 
 Dummy data provided in the request-body of POST method, and also in the url of GET Method
