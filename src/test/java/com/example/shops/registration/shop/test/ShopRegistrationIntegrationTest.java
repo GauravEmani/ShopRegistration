@@ -1,5 +1,7 @@
 package com.example.shops.registration.shop.test;
 
+import com.example.shops.registration.shop.model.ShopAddress;
+import com.example.shops.registration.shop.model.ShopDetailsEntity;
 import com.example.shops.registration.shop.repository.ShopsRepository;
 import com.example.shops.registration.shop.util.ShopDetailsTransferObject;
 import org.junit.After;
@@ -72,18 +74,34 @@ public class ShopRegistrationIntegrationTest {
     }
     
     public void createMockShopEntries() {
-    	ShopDetailsTransferObject mockTransferObject = new ShopDetailsTransferObject();
-    	mockTransferObject.setShopName("mockShop");
-    	mockTransferObject.setPostcode("411061");
-    	mockTransferObject.setShopNumber("1");
-        ResponseEntity<ShopDetailsTransferObject> response =  testRestTemplate.postForEntity("/shops", mockTransferObject, ShopDetailsTransferObject.class);
-        
-        ShopDetailsTransferObject mockTransferObject1 = new ShopDetailsTransferObject();
-    	mockTransferObject.setShopName("mockShop1");
-    	mockTransferObject.setPostcode("411062");
-    	mockTransferObject.setShopNumber("2");
-        ResponseEntity<ShopDetailsTransferObject> response1 =  testRestTemplate.postForEntity("/shops", mockTransferObject, ShopDetailsTransferObject.class);
-
+    	// ShopDetailsTransferObject mockTransferObject = new ShopDetailsTransferObject();
+    	
+    	ShopAddress address = new ShopAddress();
+    	address.setPostcode(411061);
+    	address.setShopNumber(1);
+    	address.setDescription("Pimpri-Chinchwad Maharashtra India 411061");
+    	
+    	ShopDetailsEntity mockEntity = new ShopDetailsEntity();
+    	mockEntity.setShopName("mockShop");
+    	mockEntity.setAddress(address);
+    	mockEntity.setLattitude(18.5882884);
+    	mockEntity.setLongitude(73.8169099);
+   
+    	
+    	shopRepository.save(mockEntity);
+    	
+    	ShopAddress address1 = new ShopAddress();
+    	address1.setPostcode(411062);
+    	address1.setShopNumber(2);
+    	address1.setDescription("Maharashtra India 411062");
+    	
+    	ShopDetailsEntity mockEntity1 = new ShopDetailsEntity();
+    	mockEntity1.setShopName("mockShop1");
+    	mockEntity1.setAddress(address1);
+    	mockEntity1.setLattitude(18.6962184);
+    	mockEntity1.setLongitude(73.78308609999999);
+    	
+    	shopRepository.save(mockEntity1);
 
     }
 }
