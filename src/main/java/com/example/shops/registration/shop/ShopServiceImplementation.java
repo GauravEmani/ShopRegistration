@@ -33,6 +33,7 @@ public class ShopServiceImplementation implements ShopServiceIF{
 	
 	@Autowired
 	LocationClient locationClient;
+	
 	@Autowired
 	ShopsRepository shopRepository;
 	
@@ -45,7 +46,7 @@ public class ShopServiceImplementation implements ShopServiceIF{
 	}
 	
 	public boolean checkForExistingShopRecord(ShopDetailsTransferObject transferObject) {
-		return shopRepository.findOne(transferObject.getPostcode()) != null;
+		return shopRepository.findByShopAddress_Postcode(Integer.parseInt(transferObject.getPostcode())) != null;
 	}
 	
 	public String getLocationFromGoogle(String zipcode) {

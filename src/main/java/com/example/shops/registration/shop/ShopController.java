@@ -46,8 +46,10 @@ public class ShopController {
 				ShopDetailsTransferObject updatedTransferObject;
 				if(shopService.checkForExistingShopRecord(transferObject)) {
 					updatedTransferObject = shopService.addNewShop(transferObject);
+					
 					MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
 					params.add("update-info", "An existing shop record has been updated");
+					
 					return new ResponseEntity<ShopDetailsTransferObject>(updatedTransferObject, params, HttpStatus.OK);
 				}
 				updatedTransferObject = shopService.addNewShop(transferObject);
