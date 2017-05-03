@@ -44,6 +44,10 @@ public class ShopServiceImplementation implements ShopServiceIF{
 	    return new RestTemplate();
 	}
 	
+	public boolean checkForExistingShopRecord(ShopDetailsTransferObject transferObject) {
+		return shopRepository.findOne(transferObject.getPostcode()) != null;
+	}
+	
 	public String getLocationFromGoogle(String zipcode) {
 	
 		// Call the google apis to fetch the geo-location	

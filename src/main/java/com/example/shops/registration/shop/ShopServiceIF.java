@@ -15,4 +15,6 @@ public interface ShopServiceIF {
 	// method declaration to fetch location data from google location api
 	public  String getLocationData();
 
+	public boolean checkForExistingShopRecord(ShopDetailsTransferObject transferObject);
+
 }
