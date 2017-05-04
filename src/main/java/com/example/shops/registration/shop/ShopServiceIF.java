@@ -2,6 +2,7 @@ package com.example.shops.registration.shop;
 
 import java.util.Collection;
 
+import com.example.shops.registration.shop.model.ShopDetailsEntity;
 import com.example.shops.registration.shop.util.ShopDetailsTransferObject;
 
 public interface ShopServiceIF {
@@ -15,6 +16,8 @@ public interface ShopServiceIF {
 	// method declaration to fetch location data from google location api
 	public  String getLocationData();
 
-	public boolean checkForExistingShopRecord(ShopDetailsTransferObject transferObject);
+	public ShopDetailsEntity checkForExistingShopRecord(ShopDetailsTransferObject transferObject);
+	
+	public void deleteExistingShopRecord(ShopDetailsEntity entity) throws IllegalArgumentException;
 
 }

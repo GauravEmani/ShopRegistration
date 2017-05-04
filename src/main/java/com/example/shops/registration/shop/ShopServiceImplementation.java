@@ -45,8 +45,13 @@ public class ShopServiceImplementation implements ShopServiceIF{
 	    return new RestTemplate();
 	}
 	
-	public boolean checkForExistingShopRecord(ShopDetailsTransferObject transferObject) {
-		return shopRepository.findByShopAddress_Postcode(Integer.parseInt(transferObject.getPostcode())) != null;
+	public ShopDetailsEntity checkForExistingShopRecord(ShopDetailsTransferObject transferObject) {
+		return shopRepository.findByShopAddress_Postcode(Integer.parseInt(transferObject.getPostcode()));
+	}
+	
+	@Override
+	public void deleteExistingShopRecord(ShopDetailsEntity entity) throws IllegalArgumentException{
+		shopRepository.delete(entity);
 	}
 	
 	public String getLocationFromGoogle(String zipcode) {
@@ -117,7 +122,7 @@ public class ShopServiceImplementation implements ShopServiceIF{
 	@Override
 	public List<ShopDetailsTransferObject> getAllNearbyShops(ShopDetailsTransferObject transferObject) {
 		// get all shops from the repository
-		List<ShopDetailsEntity> listOfShopEntities = shopRepository.findAll();
+		List<ShopDetailsEntity> listOfShopEntities = (List<ShopDetailsEntity>) shopRepository.findAll();
 		
 		List<ShopDetailsEntity> listOfNearbyShopEntities = new ArrayList<ShopDetailsEntity>();
 		

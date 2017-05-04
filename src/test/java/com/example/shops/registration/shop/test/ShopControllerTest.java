@@ -1,6 +1,7 @@
 package com.example.shops.registration.shop.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.example.shops.registration.shop.ShopController;
 import com.example.shops.registration.shop.ShopServiceIF;
+import com.example.shops.registration.shop.model.ShopDetailsEntity;
 import com.example.shops.registration.shop.util.ShopDetailsTransferObject;
 
 public class ShopControllerTest {
@@ -64,8 +66,10 @@ public class ShopControllerTest {
 	public void testAddNewShop() throws Exception 
 	{
 		ShopDetailsTransferObject mockTransferObject = createMockTransferObject();
+		ShopDetailsEntity mockEntity = new ShopDetailsEntity();
 
 		when(mockShopServiceImplementation.addNewShop(mockTransferObject)).thenReturn(mockTransferObject);
+		when(mockShopServiceImplementation.checkForExistingShopRecord(mockTransferObject)).thenReturn(mockEntity);
 
 		// check for not found response when transfer object is null
 		ResponseEntity<ShopDetailsTransferObject> result = controller.createShop(null);
@@ -76,11 +80,20 @@ public class ShopControllerTest {
 		result = controller.createShop(mockTransferObject);
 		verify(mockShopServiceImplementation, times(1)).addNewShop(mockTransferObject);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
-
-		// check for valid response with updated shop data when a different
-		// request for the same shop is posted
-		mockTransferObject.setShopName("Same Shop From Different user");
+		
+		// check for an error response when an existing entity is not deleted
+		/*mockTransferObject.setShopName("Same Shop From Different user");
 		result = controller.createShop(mockTransferObject);
+		verify(mockShopServiceImplementation, times(2)).checkForExistingShopRecord(mockTransferObject);
+		verify(mockShopServiceImplementation, times(1)).deleteExistingShopRecord(null);
+		assertNull(result);
+		assertEquals(HttpStatus.CONFLICT, result.getStatusCode());*/
+		
+		// check for valid response with updated shop data when a different
+		// request for the same shop is posted		
+		result = controller.createShop(mockTransferObject);
+		verify(mockShopServiceImplementation, times(2)).checkForExistingShopRecord(mockTransferObject);
+		verify(mockShopServiceImplementation, times(2)).deleteExistingShopRecord(mockEntity);
 		verify(mockShopServiceImplementation, times(2)).addNewShop(mockTransferObject);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 
@@ -114,8 +127,7 @@ public class ShopControllerTest {
 		
 		// check for a valid response when lattitude and longitude are valid
 		result = controller.getShops(validLattitude, validLongitude);
-		verify(mockShopServiceImplementation, times(1)).getAllNearbyShops(mockTransferObj);
-		assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+		assertEquals(HttpStatus.OK, result.getStatusCode());
 	}
 	
 	public ShopDetailsTransferObject createMockTransferObject() 

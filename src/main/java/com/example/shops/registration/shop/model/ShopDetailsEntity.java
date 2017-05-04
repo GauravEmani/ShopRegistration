@@ -17,6 +17,7 @@ public class ShopDetailsEntity {
 	String shopName;
 	
 	@Embedded
+	@org.springframework.data.annotation.Version
 	ShopAddress shopAddress;
 	
 	double lattitude;

@@ -44,9 +44,18 @@ public class ShopController {
 			else 
 			{
 				ShopDetailsTransferObject updatedTransferObject;
-				if(shopService.checkForExistingShopRecord(transferObject)) {
+				ShopDetailsEntity existingEntity = shopService.checkForExistingShopRecord(transferObject);
+				if(existingEntity != null) {
+					try {
+					// delete the existing entity
+					shopService.deleteExistingShopRecord(existingEntity);
+					}
+					catch(Exception e) {
+						return ResponseHelper.error(HttpStatus.CONFLICT, "Existing shop cannot be deleted", e);
+					}
+					// get the updated transfer object
 					updatedTransferObject = shopService.addNewShop(transferObject);
-					
+					// return response
 					MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
 					params.add("update-info", "An existing shop record has been updated");
 					
