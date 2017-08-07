@@ -28,12 +28,12 @@ resources:
 ##########
 # DOCKER
 ##########
-- name: docker-img
-  type: docker-image
-  source: &Telemetry-artifacts
-    repository: incontact-docker-snapshot-local.jfrog.io/telemetry
-    username: gaurav-emani-incontact
-    password: AKCp2WXr5NWxf6deV1T9gFWkVR2GPa4gBSQL3T2491t7EstBcvukt6T74qWSZzpE4xkkqNhpT
+# - name: docker-img
+#   type: docker-image
+#   source: &Telemetry-artifacts
+#     repository: incontact-docker-snapshot-local.jfrog.io/telemetry
+#     username: gaurav-emani-incontact
+#     password: AKCp2WXr5NWxf6deV1T9gFWkVR2GPa4gBSQL3T2491t7EstBcvukt6T74qWSZzpE4xkkqNhpT
      
 jobs:
   - name: clone-repo
@@ -41,7 +41,7 @@ jobs:
     - get: source-code
       trigger: true
     - task: clone
-      file: "source-code/gitclonerepo/tasks/clonerepo.yml"
+      file: "source-code/tasks/clonerepo.yml"
     serial: true
     on_failure:
        do:
@@ -52,6 +52,7 @@ jobs:
            - name: source-code
            outputs:
            - name: notification-content
+           - name: source-code1
            image_resource:
              type: docker-image
              source: { repository: pallet/git-client }
@@ -73,48 +74,88 @@ jobs:
            params:
             LAST_COMMIT: file://notification-content/notification_body.txt
             LAST_COMMIT_REPO: file://notification-content/notification_repo.txt  
+  
+  - name: package
+    plan:
+    - get: source-code
+      trigger: true
+    - task: package
+      privileged: true
+      file: source-code/tasks/package.yml
+    serial: true
+    on_failure:
+       do:
+       - task: create-notification-content
+         config:
+           platform: linux
+           inputs:
+           - name: source-code
+           outputs:
+           - name: notification-content
+           - name: source-code1
+           image_resource:
+             type: docker-image
+             source: { repository: pallet/git-client }
+           run:
+             path: sh
+             args:
+             - -exc
+             - |
+               REPO_NAME=$(cd source-code && git remote show origin -n | grep "Fetch URL:" | sed -E 's#^.*/(.*)$#\1#' | sed 's#.git$##')
+               LAST_COMMIT_DETAILS=$(cd source-code && git log --oneline -1 --pretty=format:"%cn committed %h on %cd")
+               echo "\n ${LAST_COMMIT_DETAILS}" >> notification-content/notification_body.txt
+               echo "FAILED: On repository \n ${REPO_NAME} \n" >> notification-content/notification_repo.txt
+       - put: hipchat 
+         params: 
+          color: red
+          from: "Concourse CI" 
+          message: 
+           template: "${LAST_COMMIT_REPO} \n ${LAST_COMMIT}\n \n. Concourse Job Name :- ${BUILD_JOB_NAME}  \n  <a href='${ATC_EXTERNAL_URL}/pipelines/${BUILD_PIPELINE_NAME}/jobs/${BUILD_JOB_NAME}/builds/${BUILD_NAME}'>Build Logs</a>" 
+           params:
+            LAST_COMMIT: file://notification-content/notification_body.txt
+            LAST_COMMIT_REPO: file://notification-content/notification_repo.txt
   ###########
   # QA GATE
   ###########
-  - name: Service QA gate
-    on_failure:
-      put: hipchat
-      params:
-        color: red
-        from: "Concourse CI"
-        message:
-          template: "QA sonar gate Failed"
-        notify: true
+  # - name: Service QA gate
+  #   on_failure:
+  #     put: hipchat
+  #     params:
+  #       color: red
+  #       from: "Concourse CI"
+  #       message:
+  #         template: "QA sonar gate Failed"
+  #       notify: true
 
-    plan:
-    - get: docker-img
-      #passed: [LoadTest,Run Integration Tests]
-      trigger: true
-      params: {skip_download: true}
-    - get: source-code
-    #- get: art-service
-    #  params: {unzip: true}
-    - task: Submit sonar analysis - source-code
-      config:
-        platform: linux
-        image_resource:
-          type: docker-image
-          source:
-            repository: incontact-docker-snapshot-local.jfrog.io/sonar
-            <<: *Telemetry-artifacts
-        inputs:
-        - name: source-code        
-        #- name: art-service      
-        outputs:
-        - name: sonar-request
-        params:
+  #   plan:
+  #   - get: docker-img
+  #     #passed: [LoadTest,Run Integration Tests]
+  #     trigger: true
+  #     params: {skip_download: true}
+  #   - get: source-code
+  #   #- get: art-service
+  #   #  params: {unzip: true}
+  #   - task: Submit sonar analysis - source-code
+  #     config:
+  #       platform: linux
+  #       image_resource:
+  #         type: docker-image
+  #         source:
+  #           repository: incontact-docker-snapshot-local.jfrog.io/sonar
+  #           <<: *Telemetry-artifacts
+  #       inputs:
+  #       - name: source-code        
+  #       #- name: art-service      
+  #       outputs:
+  #       - name: sonar-request
+  #       params:
         
-          SONAR_URL: "http://localhost:9000"
-          EXCLUSIONS: target/**/*,project/target/**/*,project/project/**/*,public/javascripts/external/*,html/**
-        #- SCOVERAGE: art-service/scoverage.coverage.xml
-          PROJECT: sonar-test
-          PROJECT_VERSION: 0.1
-          SOURCE_PATH: source-code
-          SONAR_RESULTS: sonar-request
-        run:
-          path: ./sonar_runner.sh
+  #         SONAR_URL: "http://localhost:9000"
+  #         EXCLUSIONS: target/**/*,project/target/**/*,project/project/**/*,public/javascripts/external/*,html/**
+  #       #- SCOVERAGE: art-service/scoverage.coverage.xml
+  #         PROJECT: sonar-test
+  #         PROJECT_VERSION: 0.1
+  #         SOURCE_PATH: source-code
+  #         SONAR_RESULTS: sonar-request
+  #       run:
+  #         path: ./sonar_runner.sh
