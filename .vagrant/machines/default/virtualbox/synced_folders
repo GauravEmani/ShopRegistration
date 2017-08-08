@@ -1,0 +1,1 @@
+{"virtualbox":{"/vagrant":{"mount_options":["dmode=777","fmode=777","uid=900","gid=900"],"guestpath":"/vagrant","hostpath":"C:/Users/gemani/Desktop/R & D/TestEnvironment/ShopRegistration","disabled":false,"__vagrantfile":true}}}

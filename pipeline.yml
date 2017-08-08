@@ -5,8 +5,7 @@ resource_types:
   - name: hipchat-notification-resource 
     type: docker-image 
     source: 
-    
-       repository: incontact/hipchat-notification-resource 
+      repository: incontact/hipchat-notification-resource 
 
 #############
 # RESOURCES
@@ -22,7 +21,7 @@ resources:
 - name: source-code
   type: git
   source:
-     uri: https://github.com/GauravEmani/Concourse_Tutorial.git
+     uri: https://github.com/GauravEmani/ShopRegistration.git
      branch: master
 
 ##########
@@ -52,7 +51,6 @@ jobs:
            - name: source-code
            outputs:
            - name: notification-content
-           - name: source-code1
            image_resource:
              type: docker-image
              source: { repository: pallet/git-client }
@@ -78,10 +76,11 @@ jobs:
   - name: package
     plan:
     - get: source-code
+      passed: [clone-repo]
       trigger: true
     - task: package
       privileged: true
-      file: source-code/tasks/package.yml
+      file: "source-code/tasks/package.yml"
     serial: true
     on_failure:
        do:
