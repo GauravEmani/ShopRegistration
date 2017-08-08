@@ -9,9 +9,17 @@ image_resource:
 inputs:
   - name: source-code
 
-run:
-  path: "source-code/mvnw"
-  args: ["-f", "source-code/pom.xml", "package", "mvn:package"]
+# run:
+  # path: "source-code/mvnw"
+  # args: ["-f", "source-code/pom.xml", "package", "mvn:package"]
 
+run:
+  user: root
+  path: sh
+  args:
+  - -exc
+  - |
+    mvn clean package
+  
 params:
   MAVEN_BASEDIR: source-code
